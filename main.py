@@ -1,10 +1,13 @@
 import pyvista as pv
 import numpy as np
-import pymeshfix as fix
+import pymeshfix as mf
 import trimesh
 
 # The stl file is chosen based on a previously generated stl file generated in the same folder
-mesh = pv.read("blade.stl")
+
+#It is better to verify the mesh before vizualizing it for 3d printing motives
+mesh = pv.read("output_mesh.stl")
+
 
 p = pv.Plotter()
 #Show xyz axis
@@ -21,19 +24,21 @@ p.show_grid(color='black')
 #You could also try the trimesh method for hole filling
 #If nothing works,the option to check the surface before voxelizing can be deactivated writing in the parameter:(check_surface=False).If so,change the mesh1 to mesh
 #Remeshing works are being searched,but ideally,the 3d printing part should be already imported as a watertight surface(Otherwise,details could be missed)
-def fix(mesh):
+def fixing(mesh):
     # Check if the mesh is watertight or manifold
-    if not (mesh.is_watertight or mesh.is_manifold):
-        meshfix = trimesh.repair.MeshFix(mesh)
-        meshfix.repair(remove_smallest_components=True)
+    if not (mesh.is_manifold):
+        meshfix = mf.MeshFix(mesh)
+        meshfix.repair()
         # Save the repaired mesh
-        meshfix.save("Part1.stl")
-        mesh= pv.read("Part1.stl")
+        meshfix.save("repaired.stl")
+        mesh= pv.read("repaired.stl")
         return mesh
     else:
         # Mesh is already watertight and manifold, so no need for repairs
         return mesh
+    
 
+fixing(mesh)
 # Get the bounds of the mesh
 #Bounds are the limits of the extreme points of the mesh
 
@@ -69,8 +74,6 @@ z = np.zeros_like(x)  # Z-coordinate for the plane
 # Create the structured grid
 plane = pv.StructuredGrid(x, y, z)
 
-p.add_text("X,Y or Z to rotate", font_size=24)
-
 points = mesh.points
 
 def rotate_mesh(mesh, axis, angle_degrees):
@@ -102,16 +105,43 @@ if z_increment > 0:
     mesh.points[:, 2] += z_increment
 
       
+def calculate_center_of_mass(mesh):
+    # Assuming uniform mass for each point
+    uniform_mass = 1.0  # Adjust as needed
+    
+    # Get the vertices of the mesh
+    vertices = mesh.points
+    
+    # Calculate the total mass and the weighted sum of positions
+    total_mass = uniform_mass * len(vertices)
+    weighted_sum = np.sum(vertices, axis=0) * uniform_mass
+    
+    # Calculate the center of mass
+    center_of_mass = weighted_sum / total_mass
+    
+    return center_of_mass
 
 
+
+com = calculate_center_of_mass(mesh)
 
 #Wireframe allows for visualizing the grid squares
-p.add_mesh(mesh)
+p.add_title('Center Of Mass',font_size=24)
+
+p.add_mesh(mesh,color="blue", opacity=0.5)
+
+com_point = pv.PolyData(com.reshape(1, -1))
+p.add_mesh(com_point, color="red", point_size=10)  # Adjust point_size as needed
 p.add_mesh(plane, style="wireframe")
+
 
 # Check if there are any points below the Z-axis
 
 # Render and visualize the modified mesh
+mesh.compute_normals(cell_normals=True, point_normals=False, inplace=True)
+
+ids = np.arange(mesh.n_cells)[mesh['Normals'][:, 2] > 0.0]
+mesh.plot_normals(mag=2, show_edges=True)
 mesh.plot()
 
 p.show(cpos="XZ")
