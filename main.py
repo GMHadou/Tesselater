@@ -24,18 +24,49 @@ p.show_grid(color='black')
 #You could also try the trimesh method for hole filling
 #If nothing works,the option to check the surface before voxelizing can be deactivated writing in the parameter:(check_surface=False).If so,change the mesh1 to mesh
 #Remeshing works are being searched,but ideally,the 3d printing part should be already imported as a watertight surface(Otherwise,details could be missed)
+
 def fixing(mesh):
-    # Check if the mesh is watertight or manifold
-    if not (mesh.is_manifold):
-        meshfix = mf.MeshFix(mesh)
-        meshfix.repair()
-        # Save the repaired mesh
-        meshfix.save("repaired.stl")
-        mesh= pv.read("repaired.stl")
-        return mesh
-    else:
-        # Mesh is already watertight and manifold, so no need for repairs
-        return mesh
+    import trimesh
+    import pymeshfix
+
+    # Using the trimesh library to check if the mesh is watertight and manifold
+    faces = np.array(mesh.faces).reshape((-1, 4))[:, 1:]
+    trimesh_mesh = trimesh.Trimesh(np.array(mesh.points), faces)
+    
+    # Check if the mesh is watertight
+    is_watertight = trimesh_mesh.is_watertight
+
+    # Check if the mesh is manifold
+    is_manifold = mesh.is_manifold
+    #ATTENTION!!!!!!!!!!CRATE AN EDGE VERIFICATION AS WELL USING PYVISTA'S LIBRARY
+    if not is_watertight or not is_manifold:
+        print("The mesh is not watertight or manifold. Would you like to fix it? (yes/no)")
+        user_input = input()
+        
+        if user_input.lower() == 'yes':
+            # Using pymeshfix to repair the mesh
+            meshfix = pymeshfix.MeshFix(mesh.points, mesh.faces)
+            
+            # Repair the mesh
+            meshfix.repair()
+
+            # Access the repaired mesh
+            mesh = meshfix.mesh
+
+            # Or, access the resulting arrays directly from the object
+            meshfix.v # numpy np.float64 array
+            meshfix.f # numpy np.int32 array
+            
+            # View the repaired mesh (requires vtkInterface)
+            meshfix.plot()
+
+            # Save the mesh
+            meshfix.write('repaired.stl')
+        else:
+            print("Ignoring non-watertight cells.")
+    
+    return mesh
+    
     
 
 fixing(mesh)
@@ -66,7 +97,7 @@ ny = 20 # Number of divisions in Y
 
 #If you want to change the reference planes for the grid,change the shifting point to any you desire
 
-#This code will have a function to rotate the axis very soon,as it's necessary for calculations
+#This code will have a function to rotate the axis,as it's necessary for calculations
 x, y = np.meshgrid(np.linspace(0,bed_width, nx + 1) + shift_x, np.linspace(0,bed_length, ny + 1) + shift_y)
 #Z grid is nullified
 z = np.zeros_like(x)  # Z-coordinate for the plane
@@ -129,6 +160,7 @@ com = calculate_center_of_mass(mesh)
 p.add_title('Center Of Mass',font_size=24)
 
 p.add_mesh(mesh,color="blue", opacity=0.5)
+
 
 com_point = pv.PolyData(com.reshape(1, -1))
 p.add_mesh(com_point, color="red", point_size=10)  # Adjust point_size as needed

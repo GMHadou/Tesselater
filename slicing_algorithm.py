@@ -1,25 +1,38 @@
+import numpy as np
 import pyvista as pv
-from pyvista import examples
 
-mesh = examples.download_cow()
-mesh.points /= 1.5  # scale the mesh
+# Example: assuming you have 'mesh' as your PolyData
+mesh = pv.read("output_mesh.stl")
 
-camera = pv.Camera()
-camera.position = (30.0, 30.0, 30.0)
-camera.focal_point = (5.0, 5.0, 5.0)
+# Extract the Z-coordinate values
+z_coords = mesh.points[:, 2]
 
-axes = pv.Axes(show_actor=True, actor_scale=2.0, line_width=5)
-axes.origin = (3.0, 3.0, 3.0)
+    # Compute the minimum Z-coordinate value
+min_z = np.min(z_coords)
 
+    # Shift the mesh to start at Z=0
+mesh.points[:, 2] -= min_z
+
+    # Extract the x and y coordinates of the mesh points
+points = mesh.points[:, :2]
+# Find the indices of the cells at Z=0 (first layer)
+z0_cell_indices = np.where(mesh.cell_centers().points[:, 2] == 0)[0]
+
+# Extract the faces of the first layer
+first_layer_faces = mesh.extract_cells(z0_cell_indices)
+
+# Extract feature edges from the first layer faces
+edges = first_layer_faces.extract_feature_edges(90)
+
+# Create a polygon based on the base edges
+base_polygon = pv.PolyData()
+
+# Add points and cells to the base_polygon
+base_polygon.points = edges.points
+base_polygon.lines = edges.lines
+
+# Plot the base polygon
 p = pv.Plotter()
-
-p.add_text("X-Axis Rotation", font_size=24)
-p.add_actor(axes.actor)
-p.camera = camera
-
-for i in range(6):
-    rot = mesh.rotate_x(60 * i, point=axes.origin, inplace=False)
-    p.add_mesh(rot)
-
+p.add_mesh(mesh, color="blue")
+p.add_mesh(base_polygon, color="red", line_width=5)
 p.show()
-
