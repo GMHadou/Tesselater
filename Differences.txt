@@ -11,7 +11,9 @@ specially troublesome when you add the vibration movement it suffers from the no
 ,causing it to tremble and ,gradually, lose even more grip on the base,causing it to topple.So,i tried to correct it by defining
 a relation between the part's *height* and it's *base area*,putting a threshold limit that can be changed for the printer
 (It's measured taking base on a 19~~19.5 radius circle area divided by 118 mm height,which gives 9,67 as default threshold
-but it's very Empirical).
+but it's very Empirical[The calculus is more concerned with practicality rather than physical correlation,but if you really want to
+calculate a proper threshould,you should consider the speed,nozzle width,infill pattern,gcode infill,print bed adhesive forces
+and material based adhesion.All of that can be correlated to the base area and height]).
 That allows to more abundant predictions and checks on the part.For toppling avoidance,some parts are recommended to have Brim
 if tall enough.
 
