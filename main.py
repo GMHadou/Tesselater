@@ -6,7 +6,7 @@ import trimesh
 # The stl file is chosen based on a previously generated stl file generated in the same folder
 
 #It is better to verify the mesh before vizualizing it for 3d printing motives
-mesh = pv.read("output_mesh.stl")
+mesh = pv.read("Blade.stl")
 
 
 p = pv.Plotter()
