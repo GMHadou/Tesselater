@@ -103,7 +103,7 @@ def check_stability(mesh: pv.PolyData) -> str:
             return "Stability Analysis: Stable with support"
 
     else:
-        return "Very Likely to topple (if there's no support or it's standing upright)"
+        return "Very Likely to topple (if it's standing upright)"
 
 
 # Plot the convex hull, mesh, and the circle
