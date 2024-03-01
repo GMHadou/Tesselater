@@ -1,10 +1,14 @@
 Inspired Research:https://link.springer.com/article/10.1007/s12008-021-00786-w
 
+
 About support and  Thresholds:The analysis of overhanging facets and Roughness is done based on the default limit of fdm
 printers(45 degrees).Also,small Part analysis takes on the analysis with a oriented nozzle width of 4 mm(default).If your case is more particular,you could change
 some of these and attain a result that's more in context with your printer.
 
 Main.py:Is a test of main to pull other variables.Used mostly to see if some theories are correct.
+
+Non_Watertight:As a mesh that is intended to be printed in real world,specifications for surface openings and infill should be very specified,if not,this leads to the need of trying to correct it.There are other functions that do that,and main.py itself has one,But it is a matter of more deep study.
+
 
 Toppling:*ATENTION:This Code is incomplete and needs to incorporate support area to the base calculus.Otherwise it will give wrong stimations.Besides that,none of the calculus made are proven to be effective(They are not wrong,but rather unproved)*/////////While a great guideline,I disagree with the method presented in the study WillItPrint.It's not to say that the stability analysis by comparation of the center of mass
 to the bed support area is wrong,since it's a physical law of static objects,but it's incomplete,leaving only exceptional
