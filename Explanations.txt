@@ -27,7 +27,7 @@ if tall enough.
 
 Vx.py=Used to localize overhangs in the mesh and plot them.
 
-Detail Analysis:Calculates the small parts that will lose precision because of printer limitations beforehand.
+Small_Parts:Calculates the small parts that will lose precision because of printer limitations beforehand.
 
 Warping:*Atention:This should also calculate the general shrinkage of parts i nthe mesh,specially on the surface,so it's incomplete*/////////
 .Warping,while almost always limited to corners(because they are
