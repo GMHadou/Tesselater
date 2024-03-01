@@ -10,28 +10,6 @@ mesh.rotate_x(45, inplace=True)
 
 
 
-def calculate_overhang_area(overhang_cells, mesh):
-    total_area = 0
-    for cell in overhang_cells.cell:
-        # Calculate the x and y ranges of the overhang cell
-        min_x = np.min(mesh.points[cell.points, 0])
-        max_x = np.max(mesh.points[cell.points, 0])
-        min_y = np.min(mesh.points[cell.points, 1])
-        max_y = np.max(mesh.points[cell.points, 1])
-
-        # Calculate the area of the square formed by the overhang cell
-        area = (max_x - min_x) * (max_y - min_y)
-        total_area += area
-
-    return total_area
-
-
-
-
-
-
-
-
 def calculate_center_of_mass(mesh):
     # Get the vertices of the mesh
     vertices = mesh.points
