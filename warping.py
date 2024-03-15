@@ -2,6 +2,7 @@ import pyvista as pv
 import numpy as np
 import scipy.spatial 
 
+
 mesh=pv.read("Output_mesh.stl")
 p=pv.Plotter()
 #Some Data of your printer will help calculate increased chance of geometrical warping
@@ -30,6 +31,19 @@ else:
 Max_Speed = Flow / (Line_Width * Layer_Height)
 Speed_Quality = Max_Speed * 0.7
 
+mesh_height = np.ptp(mesh.points[:, 2])
+
+Base = mesh.clip(normal=[0, 0, 1], origin=[0, 0, 0.1])
+
+x_range = np.ptp(Base.points[:, 0])
+y_range = np.ptp(Base.points[:, 1])
+
+# Calculate the base area by multiplying the x and y ranges
+base_area = (x_range * y_range)
+
+stability_margin2 = base_area / mesh_height
+
+threshold = 9.67
 #A Biased number that gives an empirical estimation of warping increased possibility based on these variables
 Warping_Tendency= abs(((Speed)*Layer_Height/(Line_Width))-(Speed_Quality)*Layer_Height/(Ideal))
 
@@ -101,7 +115,10 @@ def check_mesh_stability(mesh):
                 p.add_text("Layer Height is too high,lower it", font_size=24, color='red',position='lower_edge')
 
     if np.any(max_edge_length <= 85):
-        p.add_text("Very Safe(First Layer is very small for warping)", font_size=24, color='blue',position='lower_edge')
+        if(stability_margin2 < threshold):
+            p.add_text("Very Safe(Low chance of First Layer warping)", font_size=24, color='blue',position='lower_edge')
+        else:
+            p.add_text("Problem:Too small for First Layer", font_size=24, color='green',position='lower_edge')
     else:
         p.add_mesh(first_layer_faces,show_edges=True, color="blue", opacity=0.8, label="First Layer Faces")
         p.add_mesh(edges, color="red", opacity=0.8,line_width=5)          
