@@ -2,6 +2,32 @@ import pyvista as pv
 import numpy as np
 
 def measure_overhang_density(mesh, obb_tree, threshold_angle):
+    import pyvista as pv
+import numpy as np
+from scipy.spatial import cKDTree
+from vx import overhang_cells
+
+all_regions = overhang_cells.connectivity('all')
+region_ids = np.unique(all_regions['RegionId'])
+
+noise_region_ids = region_ids[1::]  # All region ids except '0'
+p = pv.Plotter()
+
+for region_id in noise_region_ids:
+    noise = overhang_cells.connectivity('all', [region_id])  # Fix: Pass region_id as a list
+    region_length = np.sum(noise['RegionId'] == region_id)
+    print(f"Length of region {region_id}: {region_length}")
+    closest_regions = overhang_cells.connectivity('closest', [region_id])
+    print(f"Closest regions to region {region_id}: {closest_regions}")
+
+    if region_length > 1000:
+        p.add_text("Complications removing support", position=(0.5, 0.5), font_size=24, color="red")
+
+p.add_mesh(overhang_cells.outline())
+p.show()
+    #THE ABOVE CODE IS EXPERIMENTAL,PROCEED WITH CAUTION
+
+    
     """Measure the density of overhang cells in the mesh using an OBB tree."""
     # Calculate overhang cells
     mesh.compute_normals(cell_normals=True, point_normals=False, inplace=True, flip_normals=True)
