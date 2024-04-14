@@ -1,14 +1,8 @@
 import numpy as np
 import scipy.spatial
 import pyvista as pv
-from warping import first_layer_faces
 from vx import overhang_cells
-
-mesh=pv.read("Blade.stl")
-
-mesh.rotate_x(45, inplace=True)
-
-
+from Shrinkage import mesh,unstable
 
 def calculate_center_of_mass(mesh):
     # Get the vertices of the mesh
@@ -30,7 +24,6 @@ def check_stability(mesh: pv.PolyData) -> str:
     Returns:
         str: A stability analysis result.
     """
-    points = mesh.points[:, :2]
     mesh_height = np.ptp(mesh.points[:, 2])
     center_of_mass = calculate_center_of_mass(mesh)
     radius = mesh_height * np.tan(np.radians(5))
@@ -39,13 +32,16 @@ def check_stability(mesh: pv.PolyData) -> str:
                               center_of_mass[1] + radius * np.sin(theta),
                               np.zeros_like(theta)])
     circle_stable = pv.PolyData(circle)
-    Support=calculate_overhang_area(overhang_cells, mesh)
     p.add_mesh(circle_stable, color="green", opacity=0.3, label="Stable Circle")
 
     # Compute the minimum Z-coordinate value
     # Slice the mesh to get cells within a height range of 0.01
     Base = mesh.clip(normal=[0, 0, 1], origin=[0, 0, 0.1])
-
+    if Base.n_cells == 0:
+        # Find the closest layer to the first layer of the mesh
+        closest_layer = np.argmin(mesh.points[:, 2])
+        # Clip the closest layer
+        Base = mesh.clip(normal=[0, 0, 1], origin=[0, 0, mesh.points[closest_layer, 2]])
     p.add_mesh(Base, color="red", opacity=1, label="Base")
     # Check if all points of the circle are inside the base
     # Calculate the range of x and y coordinates of the mesh
@@ -53,7 +49,7 @@ def check_stability(mesh: pv.PolyData) -> str:
     y_range = np.ptp(Base.points[:, 1])
 
 # Calculate the base area by multiplying the x and y ranges
-    base_area = (x_range * y_range)+Support
+    base_area = (x_range * y_range)
 
     is_inside_base = np.all((Base.bounds[0] <= circle[:, 0]) & (circle[:, 0] <= Base.bounds[1]) &
                             (Base.bounds[2] <= circle[:, 1]) & (circle[:, 1] <= Base.bounds[3]))
@@ -71,17 +67,14 @@ def check_stability(mesh: pv.PolyData) -> str:
 
     
 
-    if is_inside_base:
+    if is_inside_base and unstable==0:
         return "Stability Analysis: No Toppling"
         # Check if there is a cell below each overhang face
-    elif (stability_margin2 < threshold):
-        if(Support==0):
-            return "Stability Analysis: Stable without support"
-        else:
-            return "Stability Analysis: Stable with support"
-
+    elif (stability_margin2 < threshold and unstable==1):
+            return "Stability Analysis: Stable with Brim"
     else:
-        return "Very Likely to topple (if it's standing upright)"
+            return "Very Likely to topple"
+
 
 
 # Plot the convex hull, mesh, and the circle
