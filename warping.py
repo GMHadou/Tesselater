@@ -6,6 +6,8 @@ from main import plane
 
 p=pv.Plotter()
 #Some Data of your printer will help calculate increased chance of geometrical warping
+
+Bed_Temp =50
 Nozzle_Size = 0.4
 Nozzle_Flat = 0.8
 Line_Width = Nozzle_Size * 1.25
@@ -64,7 +66,7 @@ def analyse_corners(mesh: pv.PolyData) -> bool:
     centroid = np.mean(Base.points, axis=0)
     
     # Calculate a point proportionally above the centroid
-    above_centroid = centroid + np.array([0, 0, mesh_height * 0.5])
+    above_centroid = centroid + np.array([0, 0, mesh_height * 0.2])
     
     edge_points = edges.points
     
@@ -78,45 +80,14 @@ def analyse_corners(mesh: pv.PolyData) -> bool:
     normalized_distances = distances_from_centroid / np.max(distances_from_centroid)
     Percent_for_Warp=Percentage_by_total*2
     # Pull the points towards the above_centroid with distance-based factor
-    scaled_mesh.points += directions * normalized_distances[:, np.newaxis] * (Percent_for_Warp+pow(Warping_Tendency/1000,1.1))
+    scaled_mesh.points += directions * normalized_distances[:, np.newaxis] * (Percent_for_Warp + pow(Warping_Tendency / 1000, 1.1))
+    if not (45 <= Bed_Temp <= 60) or not (195 <= Temperature <= 210):
+        scaled_mesh.points += directions * normalized_distances[:, np.newaxis] * (Percent_for_Warp + pow(Warping_Tendency / 1000, 1.1)) * 2
     
     p.add_mesh(scaled_mesh, color='red', opacity=0.5)
     p.add_mesh(plane, color='gray', opacity=0.5)
     p.add_mesh(mesh,opacity=0.8, color='blue')
     p.show()
-
-
-
-
-   
-
-
-
-def check_mesh_stability(mesh):
-    
-    if(Layer_Height > Nozzle_Size*0.7):
-                p.add_text("Layer Height is too high,lower it", font_size=24, color='red',position='lower_edge')
-
-    else :          
-        analyse_corners(Base)
-        
-
-    # Set up the plotter
-    
-    p.camera_position = "xy"
-     
-    p.add_text("Warping Tendency is :"+str(Warping_Tendency), font_size=24, color='blue',position='upper_edge')
-    print("Percentage of warping tendency is :"+str(Warping_Tendency))
-
-    p.set_background("white")
-    p.show_grid()
-
-   
-  
-
-# Example usage:
-# Replace "your_mesh_file.stl" with the actual path to your mesh file
-check_mesh_stability(mesh)
 
 
 
