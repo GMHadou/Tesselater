@@ -25,5 +25,7 @@ A method originally imported from Will It Print.It enables to see rough cells ba
 
 5-Shrinkage:
 
+Inspired by Research:
 
+[Read the paper here](https://link.springer.com/article/10.1007/s12008-021-00786-w)
 
