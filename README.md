@@ -23,4 +23,7 @@ A method originally imported from Will It Print.It enables to see rough cells ba
 
 4-Toppling:Toppling is an interesting behavior of some prints,where it will tend to collapse after a due period of time.Toppling seems to have a close relation with the warping aspect,hence why it imports the warping percentage aspect of the print.It also looks for the center of mass disposition based on the inclination.Note that it always considers usage of supports,so if the model design intends to have a new support type or is somewhat required to be made without support,this might Throw in errors.
 
+5-Shrinkage:
+
+
 
