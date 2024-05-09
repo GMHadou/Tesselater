@@ -25,7 +25,7 @@ Outer_volume=Surface_Area*Wall_thickness
 total_volume = mesh.volume
 
 #Even though CTE and Fluid_Fase are not used,they are present to correspond to possible calculus that are closer to a
-theoretical value of shrinkage
+#theoretical value of shrinkage
 CTE = 68e-6  # Coefficient of Thermal Expansion for PLA in /°C
 initial_temp = 210  # Initial temperature in °C
 Fluid_Fase = 135  # Temperature of the start of the Phase that Plastic is molded
