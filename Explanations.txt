@@ -1,56 +1,36 @@
-Inspired Research:https://link.springer.com/article/10.1007/s12008-021-00786-w
+Inspired by Research:
 
+Read the paper here
 
-About support and  Thresholds:The analysis of overhanging facets and Roughness is done based on the default limit of fdm
-printers(45 degrees).Also,small Part analysis takes on the analysis with a oriented nozzle width of 4 mm(default).If your case is more particular,you could change
-some of these and attain a result that's more in context with your printer.
+Enhancing Support and Thresholds:
 
-Main.py:Is a test of main to pull other variables.Used mostly to see if some theories are correct.
+When analyzing overhanging facets and roughness, we rely on the default parameters of FDM printers (set at 45 degrees). Additionally, our small part analysis is conducted with an oriented nozzle width of 4 mm (default setting). However, for more tailored results aligned with your printer's specifications, feel free to adjust these parameters accordingly.
 
-Non_Watertight:As a mesh that is intended to be printed in real world,specifications for surface openings and infill should be very specified,if not,this leads to the need of trying to correct it.There are other functions that do that,and main.py itself has one,But it is a matter of more deep study.
+Main.py:
+This file serves as the hub for the main menu and essential definitions.
 
+Non-Watertight:
+In real-world printing, meticulous attention to surface openings and infill specifications is crucial. Failure to ensure cleanliness and precision may necessitate corrective measures. While there are functions within the main.py file to address this, a deeper understanding is recommended.
 
-Toppling:*ATENTION:This Code is incomplete and needs to incorporate support area to the base calculus.Otherwise it will give wrong stimations.Besides that,none of the calculus made are proven to be effective(They are not wrong,but rather unproved)*/////////While a great guideline,I disagree with the method presented in the study WillItPrint.It's not to say that the stability analysis by comparation of the center of mass
-to the bed support area is wrong,since it's a physical law of static objects,but it's incomplete,leaving only exceptional
-cases for toppling and limiting it's reach.Think of a straight,very thin,cylinder.Although it's center of mass is inside
-the defined proportions of the convex hull and even can be projected inside it,it's likely to topple in some cases.The motive is:
-Because of it's thin area of contact with the base,it has very limited adhesive forces(if not reinforced by a Brim).THat's
-specially troublesome when you add the vibration movement it suffers from the nozzle movement,printing the lines above the base
-,causing it to tremble and ,gradually, lose even more grip on the base,causing it to topple.So,i tried to correct it by defining
-a relation between the part's *height* and it's *base area*,putting a threshold limit that can be changed for the printer
-(It's measured taking base on a 19~~19.5 radius circle area divided by 118 mm height,which gives 9,67 as default threshold
-but it's very Empirical[The calculus is more concerned with practicality rather than physical correlation,but if you really want to
-calculate a proper threshould,you should consider the speed,nozzle width,infill pattern,gcode infill,print bed adhesive forces
-and material based adhesion.All of that can be correlated to the base area and height]).
-That allows to more abundant predictions and checks on the part.For toppling avoidance,some parts are recommended to have Brim
-if tall enough.
+Toppling:
+ATTENTION: This code is incomplete and requires incorporation of support area into the base calculus to generate accurate estimations. Additionally, the calculations provided are not yet empirically proven effective. While the stability analysis method presented in the "WillItPrint" study offers valuable insights, it's inherently incomplete. For instance, consider a straight, thin cylinder; despite meeting the defined stability criteria, it may still topple due to limited adhesive forces. To mitigate this, we propose a novel approach that considers the relationship between a part's height and its base area, allowing for customizable threshold settings tailored to your printer.
 
-Vx.py=Used to localize overhangs in the mesh and plot them.
+Vx.py:
+This module is designed to pinpoint overhangs in the mesh and visualize them.
 
-Small_Parts:Calculates the small parts that will lose precision because of printer limitations beforehand.
+Small_Parts:
+Estimates the precision loss in small parts due to printer limitations.
 
-Warping:*Atention:This should also calculate the general shrinkage of parts i nthe mesh,specially on the surface,so it's incomplete*/////////
-.Warping,while almost always limited to corners(because they are
-the part with increased anomalous heat dispersion[The isolated structure] and reheating delay),is very much dependant on
-Print Bed cleaning and temperature regulation,rather.So,while this method could be credited by analysing
-the size of the edges,number of spiky corners and parts within first layer reach(Usually happens either in first layer or close),it doesn't
-consider the height which it can be "pulled".There is a interisting study concerning IA for warping prediction though,which i will leave here
-for further study of those who have access:
-https://www.liebertpub.com/doi/abs/10.1089/3dp.2021.0119
-https://www.sciencedirect.com/science/article/abs/pii/S0167577X2301217X
-https://www.sciencedirect.com/science/article/pii/S2542504823000751
+Warping.py:
+Warping, often confined to corners, is primarily influenced by print bed cleanliness and temperature regulation. While our method involves analyzing edge size, number of spiky corners, and first layer considerations, it's primarily based on shrinkage percentage and its impact on the first layer. For those interested, we recommend further exploration of warping prediction using visual heat images through the provided research links.
 
-Warping Formula:A small Formula developed to calculate some variables based on pre-configs of the user.
+Warping Formula:
+A concise formula developed to calculate variables based on user-defined configurations.
 
-Temperature:Although the code doesn't offer a Temperature optimization directly,since it would be too divergent for a general analysis,
-it optimizes the geometry,which in case optimizes heat dispersion.If you want to go ahead and calibrate or search for a
-temperature optimization method,i strongly suggest you use the GCodeutils or Octoprint smart calibration,since both offer a way to
-optimize the temperature.It's also interesting to check your filament and spool,for material quality checks.
-Problems avoided with this:Stringing,uneven surface(blobs),warping(partially),Toppling(Generated by warping) and basically almost every other
-major problem presented in this analysis.
+Temperature:
+While direct temperature optimization isn't provided in the code due to its divergence in a general analysis, optimizing geometry indirectly enhances heat dispersion. For those inclined to calibrate or explore temperature optimization methods, we recommend utilizing tools like GCodeutils or Octoprint smart calibration. Additionally, thorough filament and spool checks are advised for quality assurance.
 
-Roughness:Cells that need support(overhanged) and are directly in contact with it WILL be rough,since there's a minimal fusion
-for stability.
+By optimizing geometry, our approach mitigates various printing issues, including stringing, uneven surfaces (blobs), partial warping, toppling (often triggered by warping), and many others.
 
-Support_Hardness_For_Removal(Soon):Used in conjunction with Support Analysis.Used to Study the potential problems in removing a PLA based
-Support and calculate the percentage of fusion it may suffer.
+Roughness:
+Cells requiring support (overhanging) and those in direct contact with it may exhibit roughness due to minimal fusion for stability.
