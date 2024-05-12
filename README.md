@@ -1,6 +1,7 @@
 # Tesselater
 An open-source program to emulate geometrical tesselation errors in 3d printing and real world interaction.
-Inspired by Will-It-Print
+Inspired by Will-It-Print:
+[Read the paper here](https://link.springer.com/article/10.1007/s12008-021-00786-w)
 
 ## 1-Introduction
 This code was designed to be an open source form of predicting 3d printing errors based on given parameters and analysis of a determined mesh.The objective is both being functional enough to be used in individual
@@ -25,11 +26,22 @@ and give the possible cells that are prone to error.Note that it's important to 
 A method originally imported from Will It Print.It enables to see rough cells based on nozzle angle with the mesh(It also considers overhang_cells).Roughness interfere also with loss of detail.
 
 ## 1.4-Toppling:
-Toppling is an interesting behavior of some prints,where it will tend to collapse after a due period of time.Toppling seems to have a close relation with the warping aspect,hence why it imports the warping percentage aspect of the print.It also looks for the center of mass disposition based on the inclination.Note that it always considers usage of supports,so if the model design intends to have a new support type or is somewhat required to be made without support,this might Throw in errors.
+Toppling is an interesting behavior of some prints,where it will tend to collapse after a due period of time.Toppling seems to have a close relation with the warping aspect,hence why it imports the warping percentage aspect of the print.It also looks for the center of mass disposition based on the inclination.Note that it always considers usage of supports,so if the model design intends to have a new support type or is somewhat required to be made without support,this might Throw in errors.As a disposition to check for warping errors we calculate a safe volume where shrinkage will not interfere in the piece falling over.
 
-1.5-Shrinkage:
+## 1.5-Shrinkage:
+Shrinkage is not deduced,but rather taken as pre researched numbers according to a table reference.However,original variables for calculating the real shrinkage are present and could be used with a vision IA to give a very real value percentage of shrinkage.This part interferes with almost every other parameter of the code.
 
-Inspired by Research:
+## 1.6-Extra Plotted tools:
+Vector calculation,Center of mass and mesh infill correction are some of requisited variables to see when dealing with most in depth parts of 3d printing and mesh qualty control.
+They're added here by themselves.
 
-[Read the paper here](https://link.springer.com/article/10.1007/s12008-021-00786-w)
+Additional technical info on the program is located on explanations.txt
+
+## 2-Installation:
+
+
+
+
+
+
 
