@@ -8,6 +8,25 @@ import trimesh
 #It is better to verify the mesh before vizualizing it for 3d printing motives
 mesh = pv.read("Blade.stl")
 
+x_range = np.ptp(Base.points[:, 0])
+y_range = np.ptp(Base.points[:, 1])
+
+# Calculate the base area by multiplying the x and y ranges
+base_area = (x_range * y_range)
+
+
+    
+threshold = 9.67
+
+    # Extract the overhang faces
+   # Calculate the overhang based on face normals
+
+
+# Extract the overhang cells
+    
+    # Calculate stability_margin2 by dividing base_area by mesh_height
+stability_margin2 = base_area / mesh_height
+
 
 p = pv.Plotter()
 #Show xyz axis
