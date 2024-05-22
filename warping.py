@@ -2,7 +2,7 @@ import pyvista as pv
 import numpy as np
 import scipy.spatial 
 from Shrinkage import mesh,Percentage_by_total
-from main import plane
+from main import plane,stability_margin2
 
 p=pv.Plotter()
 #Some Data of your printer will help calculate increased chance of geometrical warping
@@ -95,6 +95,8 @@ def analyse_corners(mesh: pv.PolyData) -> bool:
             
             if any(angle < np.pi / 2 for angle in edge_angles):
                 scaled_mesh.points += directions * normalized_distances[:, np.newaxis] * (Percent_for_Warp + pow(Warping_Tendency / 1000, 1.1)) * 3
+                if(stability_margin2 < 9.67):
+                    scaled_mesh.points += directions * normalized_distances[:, np.newaxis] * (Percent_for_Warp + pow(Warping_Tendency / 1000, 1.1)) * 4
 
     
     p.add_mesh(scaled_mesh, color='red', opacity=0.5)
