@@ -1,21 +1,24 @@
 import pyvista as pv
 import numpy as np
 import scipy.spatial 
-from Shrinkage import mesh,Percentage_by_total
-from main import plane,stability_margin2
+from Shrinkage import Percentage_by_total
+from Curses import shift,mesh
+
+plane=shift()
 
 p=pv.Plotter()
-#Some Data of your printer will help calculate increased chance of geometrical warping
 
-Bed_Temp =50
+
 Nozzle_Size = 0.4
 Nozzle_Flat = 0.8
-Line_Width = Nozzle_Size * 1.25
+Line_Width =Nozzle_Size * 1.25
 Layer_Height = 0.1
 Minimum = Layer_Height + Nozzle_Size
 Maximum = Layer_Height + Nozzle_Flat
 Ideal = (Minimum + Maximum) / 2
-Speed=80#mm/s
+Speed = 80  # mm/s
+#Some Data of your printer will help calculate increased chance of geometrical warping
+
 
 if Line_Width < Minimum or Line_Width > Maximum:
     text2 = f"Recommended to change Layer Width to {Ideal}"
@@ -34,6 +37,10 @@ else:
 Max_Speed = Flow / (Line_Width * Layer_Height)
 Speed_Quality = Max_Speed * 0.7
 
+Bed_Temp = 50
+Temperature = 195
+initial_temp = 210
+Fluid_Fase = 135
 
 
 mesh_height = np.ptp(mesh.points[:, 2])
@@ -95,12 +102,12 @@ def analyse_corners(mesh: pv.PolyData) -> bool:
             
             if any(angle < np.pi / 2 for angle in edge_angles):
                 scaled_mesh.points += directions * normalized_distances[:, np.newaxis] * (Percent_for_Warp + pow(Warping_Tendency / 1000, 1.1)) * 3
-                if(stability_margin2 < 9.67):
-                    scaled_mesh.points += directions * normalized_distances[:, np.newaxis] * (Percent_for_Warp + pow(Warping_Tendency / 1000, 1.1)) * 4
 
     
     p.add_mesh(scaled_mesh, color='red', opacity=0.5)
     p.add_mesh(plane, color='gray', opacity=0.5)
+    p.camera_position = "xz"
+    p.camera.zoom(8.0)
     p.add_mesh(mesh,opacity=0.8, color='blue')
     p.show()
 
@@ -124,8 +131,7 @@ def check_mesh_stability(mesh):
     
     p.camera_position = "xy"
      
-    p.add_text("Warping Tendency is :"+str(Warping_Tendency), font_size=24, color='blue',position='upper_edge')
-    print("Percentage of warping tendency is :"+str(Warping_Tendency))
+
 
     p.set_background("white")
     p.show_grid()
@@ -136,7 +142,6 @@ def check_mesh_stability(mesh):
 # Example usage:
 # Replace "your_mesh_file.stl" with the actual path to your mesh file
 check_mesh_stability(mesh)
-
 
 
 
