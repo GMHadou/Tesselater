@@ -1,7 +1,8 @@
 import numpy as np
 import pyvista as pv
 from matplotlib.colors import to_rgb
-from vx import overhang_cells,mesh
+from vx import overhang_cells
+from Curses import mesh
 
 def calculate_and_visualize_surface_roughness(mesh, build_direction=[0, 0, 1], smooth_color="lightblue", rough_color="purple"):
     # Calculate face normals
@@ -24,14 +25,6 @@ def calculate_and_visualize_surface_roughness(mesh, build_direction=[0, 0, 1], s
 
     # Add color array to mesh
     mesh.cell_data["SurfaceRoughness"] = colors
-
-    # Plot the mesh with colored faces
-    p = pv.Plotter()
-    p.add_mesh(mesh, scalars="SurfaceRoughness", cmap="viridis")
-    p.add_mesh(overhang_cells, color="pink")
-    p.add_text("Rough if support is directly applied on surface", 
-               position="upper_left", font_size=16, color='red')
-    p.show()
 
 # Example usage with a PyVista mesh
 calculate_and_visualize_surface_roughness(mesh)
