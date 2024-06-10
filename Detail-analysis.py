@@ -1,7 +1,6 @@
 import numpy as np
 import pyvista as pv
-from Shrinkage import mesh
-from warping import Nozzle_Size
+from main import Nozzle_Size,mesh
 
 p=pv.Plotter()
 Microstepping=1/16
@@ -20,10 +19,12 @@ filtered_cells = np.where(areas < Minimal_area)
 thin_cells = mesh.extract_cells(filtered_cells)
 
 # Add the thin cells to the plotter
+p.add_mesh(mesh, color='blue',opacity=0.3)
 p.add_mesh(thin_cells, color='red')
 
 
 p.show()
+
 
 
 
