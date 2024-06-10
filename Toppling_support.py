@@ -2,7 +2,8 @@ import numpy as np
 import scipy.spatial
 import pyvista as pv
 from vx import overhang_cells
-from Shrinkage import mesh,unstable
+from Shrinkage import mesh,result
+from warping import Warping_Tendency
 
 def calculate_center_of_mass(mesh):
     # Get the vertices of the mesh
@@ -33,6 +34,8 @@ def check_stability(mesh: pv.PolyData) -> str:
                               np.zeros_like(theta)])
     circle_stable = pv.PolyData(circle)
     p.add_mesh(circle_stable, color="green", opacity=0.3, label="Stable Circle")
+    # Move the circle to the height of the plane
+
 
     # Compute the minimum Z-coordinate value
     # Slice the mesh to get cells within a height range of 0.01
@@ -67,13 +70,13 @@ def check_stability(mesh: pv.PolyData) -> str:
 
     
 
-    if is_inside_base and unstable==0:
+    if is_inside_base and result=="SAFE":
         return "Stability Analysis: No Toppling"
         # Check if there is a cell below each overhang face
-    elif (stability_margin2 < threshold and unstable==1):
+    elif (stability_margin2 < threshold and result=="SAFE"):
             return "Stability Analysis: Stable with Brim"
-    else:
-            return "Very Likely to topple"
+    elif (stability_margin2 < threshold and result=="UNSAFE"):
+            return "Very Likely to topple in a fast print"
 
 
 
@@ -81,7 +84,5 @@ def check_stability(mesh: pv.PolyData) -> str:
 p = pv.Plotter()
 text = check_stability(mesh)
 p.add_mesh(mesh, color="white")
-p.add_text(text, font_size=24, color='white')
-
-# Show the plot
+p.add_text(text, font_size=24, color='black')
 p.show()
