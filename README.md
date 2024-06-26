@@ -10,7 +10,7 @@ Scale manufacture and particular case study of errors in mesh.In the neear futur
 
 ## Parameters Explanation:
 
-##1.0-Curses.py:
+## 1.0-Curses.py:
 The file where the main part is hosted and where it should initially run.
 
 ## 1.1-Warping:
