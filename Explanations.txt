@@ -1,6 +1,8 @@
 Enhancing Support and Thresholds:
 
-When analyzing overhanging facets and roughness, we rely on the default parameters of FDM printers (set at 45 degrees). Additionally, our small part analysis is conducted with an oriented nozzle width of 4 mm (default setting). However, for more tailored results aligned with your printer's specifications, feel free to adjust these parameters accordingly.
+When analyzing overhanging facets and roughness, we rely on the default parameters of FDM printers (set at 45 degrees). 
+Additionally, our small part analysis is conducted with an oriented nozzle width of 4 mm (default setting). However, for more tailored results aligned with your printer's specifications,
+feel free to adjust these parameters accordingly.
 
 Curses.py:
 This file serves as the hub for the main menu and essential definitions.
@@ -9,7 +11,8 @@ Meshloader.py:
 Instantiation of the pyvista mesh to be run in pyvistaAQT and to allow user to choose the File.
 
 Non-Watertight:
-In real-world printing, meticulous attention to surface openings and infill specifications is crucial. Failure to ensure cleanliness and precision may necessitate corrective measures.Ot's recommended that all the meshs analysed aree watertight,otherwise unknown bugs could occur.
+In real-world printing, meticulous attention to surface openings and infill specifications is crucial. 
+Failure to ensure cleanness and precision may necessitate corrective measures.We recommended that all the meshs analysed aree watertight,otherwise unknown bugs could occur.
 
 Toppling:
 Toppling considers both warping and therefore shrinkage calculations.While it doesn't analyse the Support itself's role,all the calculations are based on the normal usage of straight support when overhangs are present.
