@@ -24,7 +24,11 @@ Small_Parts:
 Estimates the precision loss in small parts due to printer limitations.
 
 Warping.py:
-Warping, often confined to corners, is primarily influenced by print bed cleanliness and temperature regulation. While our method involves analyzing edge size, number of spiky corners, and first layer considerations, it's primarily based on shrinkage percentage and its impact on the first layer. For those interested, we recommend further exploration of warping prediction using visual heat images through the provided [research link](https://www.researchgate.net/publication/355119774_A_STUDY_ON_THERMAL_BEHAVIOUR_OF_A_3D_PRINTER_AND_EXTRUDED_MATERIAL_WITH_THERMAL_IMAGING_METHOD)
+Warping, often confined to corners, is primarily influenced by print bed cleanliness and temperature regulation. 
+While our method involves analyzing edge size, number of spiky corners, and first layer considerations, 
+it's primarily based on shrinkage percentage and its impact on the first layer. For those interested, 
+we recommend further exploration of warping prediction using visual heat images through the provided 
+[research link](https://www.researchgate.net/publication/355119774_A_STUDY_ON_THERMAL_BEHAVIOUR_OF_A_3D_PRINTER_AND_EXTRUDED_MATERIAL_WITH_THERMAL_IMAGING_METHOD)
 
 Warping_Formula.py:
 A concise formula developed to calculate variables based on user-defined configurations.Separated to improve understanding of the calculus made.
