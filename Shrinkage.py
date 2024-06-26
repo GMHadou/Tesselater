@@ -1,16 +1,8 @@
 import pyvista as pv
-import numpy as np
-from Curses import mesh  # Assuming this imports your mesh
+from mesh_loader import get_mesh
+from variables import CTE,Temperature,Base_temp,Percentage_by_total,Wall_thickness
+mesh = get_mesh() # Assuming this imports your mesh
 
-# Constants
-CTE = 68e-6  # Coefficient of Thermal Expansion for PLA in /°C
-Print_speed = 80  # mm/s
-Temperature = 210
-Base_temp = 60
-Percentage_by_total = 0.005  # Worst-case shrinkage percentage for PLA
-Layer_Height = 0.2
-Wall_thickness = 0.8
-Infill_density = 0.1
 
 # Extract surface and calculate areas and volumes
 surface = mesh.extract_surface()
@@ -34,10 +26,9 @@ shrinked_mesh = mesh.scale(scaling_factor, inplace=False)
 p = pv.Plotter()
 p.add_mesh(shrinked_mesh, color="red")
 p.add_mesh(mesh,color="green",opacity=0.2)
-p.show()
 
 # Output shrinkage results
-print(Shrinkage_volume_surface2 / Outer_volume, Area_shrinkage)
+print("Percentage of Warping: ", Percentage_by_total, "Area Expected to Shrink: ", Area_shrinkage)
 
 # Define and check volume safety
 def volume_safety(Shrinkage_volume_surface2, Outer_volume, heat_warped):
