@@ -1,6 +1,10 @@
 import numpy as np
 import pyvista as pv
-from main import Nozzle_Size,mesh
+from main import Nozzle_Size
+from mesh_loader import get_mesh
+
+mesh = get_mesh()
+
 
 p=pv.Plotter()
 Microstepping=1/16
@@ -24,6 +28,7 @@ p.add_mesh(thin_cells, color='red')
 
 
 p.show()
+
 
 
 
