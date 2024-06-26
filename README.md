@@ -37,7 +37,7 @@ They're added here by themselves.
 
 Additional technical info on the program is located on explanations.txt
 
-## 2-Installation:
+# 2-Installation:
 
 Just install the required libraries and you should be ready to go.You could also install pyvista,pyvistaAqt and numpy if you're looking for a more compact approach.
 
