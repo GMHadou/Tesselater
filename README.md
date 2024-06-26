@@ -3,7 +3,7 @@ An open-source program to emulate geometrical tesselation errors in 3d printing 
 Inspired by Will-It-Print:
 [Read the paper here](https://link.springer.com/article/10.1007/s12008-021-00786-w)
 
-## 1-Introduction
+# 1-Introduction
 This code was designed to be an open source form of predicting 3d printing errors based on given parameters and analysis of a determined mesh.The objective is both being functional enough to be used in individual
 Scale manufacture and particular case study of errors in mesh.In the neear future more will be released concerning support correct and model otimization.For initial configuration and calculus,PLA was the material considerated and parameters are set to simulate aspects of a Ender-3 Printer.
 
