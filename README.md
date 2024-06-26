@@ -39,6 +39,39 @@ Additional technical info on the program is located on explanations.txt
 
 ## 2-Installation:
 
+Just install the required libraries and you should be ready to go.You could also install pyvista,pyvistaAqt and numpy if you're looking for a more compact approach.
+
+         ```sh
+         pip install -r requirements.txt
+## 3-Interpretation and Usage
+
+# 3.1-Warping Analysis:
+Warping will show in a different image the difference expected in the mesh,being it the purple mesh shown with "pointy" edges towars a centroid above it,
+symbolizing a behavior of warping very common in 3d printing.
+
+# 3.2-Small Details:
+If there's any cell that is smaller than the minimal Microstepping of the Printer,it will be shown in red.
+
+# 3.3-Toppling:
+Toppling will first show a Image showing the warping properties.On closure,it will display a Screen with a white mesh,with the general analysis of the 
+Toppling and on the bottom it will displayed a green circle symbolizing the center of mass projection.
+
+# 3.4-Roughness:
+The Bar shows the number of roughness per cell density of the mesh.The most purple regions are the ones where Roughness take a severe toll.
+
+# 3.5-Shrinkage:
+The shrinkage orientation is explained on a text onscreen.
+
+# 3.6-Overhangs,Center of Mass and Vector:
+Optional Displays for more advanced modelling fixes.
+
+## 4-Conclusion and Feedbacks:
+The code is intended to help newcomers and intermidiate owners of 3D Printers.As the first version of this work in some aspects,it may be prone to a lot of bugs
+and problems in calculus that will be adjusted.If you think something is wrong when testing and experimenting with this,be sure to communicate it in issues.
+
+
+
+
 
 
 
