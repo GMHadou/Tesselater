@@ -1,29 +1,29 @@
 import pyvista as pv
 import numpy as np
-import scipy.spatial 
 from Shrinkage import Percentage_by_total
-from Curses import shift,mesh
+from Curses import shift
+from mesh_loader import get_mesh
+from variables import Nozzle_Size,Nozzle_Flat,Layer_Height,Speed,Temperature,Bed_Temp
 
-plane=shift()
+mesh = get_mesh()
+
+plane=shift(mesh)
 
 p=pv.Plotter()
 
 
-Nozzle_Size = 0.4
-Nozzle_Flat = 0.8
+
 Line_Width =Nozzle_Size * 1.25
-Layer_Height = 0.1
 Minimum = Layer_Height + Nozzle_Size
 Maximum = Layer_Height + Nozzle_Flat
 Ideal = (Minimum + Maximum) / 2
-Speed = 80  # mm/s
 #Some Data of your printer will help calculate increased chance of geometrical warping
 
 
 if Line_Width < Minimum or Line_Width > Maximum:
     text2 = f"Recommended to change Layer Width to {Ideal}"
 
-Temperature = 195
+
 
 
 #Flow is the speed of ejection of material,given in mm^3/s
@@ -37,10 +37,7 @@ else:
 Max_Speed = Flow / (Line_Width * Layer_Height)
 Speed_Quality = Max_Speed * 0.7
 
-Bed_Temp = 50
-Temperature = 195
-initial_temp = 210
-Fluid_Fase = 135
+
 
 
 mesh_height = np.ptp(mesh.points[:, 2])
@@ -109,7 +106,6 @@ def analyse_corners(mesh: pv.PolyData) -> bool:
     p.camera_position = "xz"
     p.camera.zoom(8.0)
     p.add_mesh(mesh,opacity=0.8, color='blue')
-    p.show()
 
 
 
@@ -135,7 +131,7 @@ def check_mesh_stability(mesh):
 
     p.set_background("white")
     p.show_grid()
-
+    p.show()
    
   
 
