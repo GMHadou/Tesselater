@@ -1,8 +1,8 @@
 import numpy as np
-import pyvista as pv
 from matplotlib.colors import to_rgb
-from vx import overhang_cells
-from Curses import mesh
+from mesh_loader import get_mesh
+
+mesh = get_mesh()
 
 def calculate_and_visualize_surface_roughness(mesh, build_direction=[0, 0, 1], smooth_color="lightblue", rough_color="purple"):
     # Calculate face normals
