@@ -1,4 +1,20 @@
+# Constants
+CTE = 68e-6  # Coefficient of Thermal Expansion for PLA in /°C
+Print_speed = 80  # mm/s
+Temperature = 210
+Base_temp = 60
+Percentage_by_total = 0.005  # Worst-case shrinkage percentage for PLA
+Layer_Height = 0.2
+Wall_thickness = 0.8
+Infill_density = 0.1
+
+
+
 # Printer Configuration
+
+
+
+
 
 bed_width = 300.0  # in millimeters
 bed_length = 300.0  # in millimeters
@@ -57,4 +73,5 @@ Speed_Quality = Ideal * flow /Layer_Height
 
 # Function to calculate the amount of heat warped based on total volume, coefficient of thermal expansion (CTE), and base temperature
 print("Your ideal Speed is: ",Speed_Quality,"mm/s")
+
 
