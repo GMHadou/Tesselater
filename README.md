@@ -44,7 +44,7 @@ Additional technical info on the program is located on explanations.txt
 
 Just install the required libraries and you should be ready to go.You could also install pyvista,pyvistaAqt and numpy if you're looking for a more compact approach.
 
-         ```sh
+         ```
          pip install -r requirements.txt
 # 3-Interpretation and Usage
 
