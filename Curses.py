@@ -1,179 +1,98 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QMessageBox, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QMessageBox, QVBoxLayout, QWidget, QInputDialog, QFileDialog
 import pyvista as pv
 from pyvistaqt import QtInteractor
 import numpy as np
+import mesh_loader  # Import the mesh_loader module
+from variables import Microstepping,bed_width,bed_length
+p=pv.Plotter()
 
-mesh = pv.read("Files\Blade.stl")
+# Define rotation function
+def rotate_mesh(mesh, axis, angle_degrees):
+    if axis == 'x':
+        mesh.rotate_x(angle_degrees, inplace=True)
+    elif axis == 'y':
+        mesh.rotate_y(angle_degrees, inplace=True)
+    elif axis == 'z':
+        mesh.rotate_z(angle_degrees, inplace=True)
+    min_z = mesh.bounds[4]
+    mesh.points[:, 2] -= min_z
 
-
-def shift():
+# Define shifting function
+def shift(mesh):
     mesh_center = mesh.center
-    bed_width = 300.0  # in millimeters
-    bed_length = 300.0  # in millimeters
-
-# Print bed plane departs from mesh center
-# Bounds 0 to 1 is x,2 to 3 is y,4 to 5 is z
-
-# Calculate the shift required to center the grid on the mesh
     shift_x = mesh_center[0] - (bed_width / 2)
     shift_y = mesh_center[1] - (bed_length / 2)
     shift_z = -mesh.bounds[4]  # shift towards the lowest position of the mesh
-# You could also, instead of shifting, create the plane with reference from the center point of the mesh as the origin
-    shift_p= [shift_x, shift_y, shift_z]  # No shift along z axis    
-    # Create the plane
+
+    shift_p = [shift_x, shift_y, shift_z]
+
     shifted_plane = pv.Plane(i_size=bed_width, j_size=bed_length, i_resolution=10, j_resolution=10)
     shifted_plane.translate(shift_p)
-    # Resize the plane to match the bed dimensions
-
-
-    
-    # Resize the plane to always be bigger than the mesh
-
-           # Add the translated plane to the plotter
+    shifted_plane.translate([-bed_width/2, -bed_length/2, 0])
 
     min_z_mesh = mesh.points[:, 2].min()
-
-# Find the lowest Z-coordinate of the plane
     min_z_plane = shifted_plane.points[:, 2].min()
-
-# Calculate the z_increment to align the mesh with the plane and elevate it to the power of 15
     z_increment = (min_z_plane - min_z_mesh)
 
-# If z_increment is positive, it means the mesh needs to be raised to align with the plane
     if z_increment > 0:
-    # Translate the mesh along the Z-axis by z_increment
         mesh.points[:, 2] += z_increment
 
     return shifted_plane
 
- 
+# Define utility functions
+def calculate_flow(Temperature):
+    if Temperature <= 210:
+        return 10
+    elif 210 < Temperature < 250:
+        return 12.5
+    else:
+        return 15
 
-# Create the structured grid
-
-
-# Define the dimensions of the print bed
-
-
-# Create the structured grid
-Bed_Temp = 50
-Temperature = 195
-initial_temp = 210
-Fluid_Fase = 135
-
-
-def calculate_flow():
-        if Temperature <= 210:
-            return 10
-        elif 210 < Temperature < 250:
-            return 12.5
-        else:
-            return 15
-
-
-# Hardware package
-
-Microstepping = 1 / 16
-Nozzle_Size = 0.4
-Nozzle_Flat = 0.8
-Line_Width =Nozzle_Size * 1.25
-Layer_Height = 0.1
-Minimum = Layer_Height + Nozzle_Size
-Maximum = Layer_Height + Nozzle_Flat
-Ideal = (Minimum + Maximum) / 2
-Speed = 80  # mm/s
-
-   
-def calculate_speed_quality():
-        flow = calculate_flow()
-        Max_Speed = flow / (Line_Width * Layer_Height)
-        return Max_Speed * 0.7
-
-  
-def calculate_heat_warped(total_volume, CTE, Base_temp):
-        return total_volume * CTE * (Temperature - Base_temp)
 def calculate_center_of_mass(mesh):
-    # Assuming uniform mass for each point
-    uniform_mass = 1.0  # Adjust as needed
-    
-    # Get the vertices of the mesh
     vertices = mesh.points
-    
-    # Calculate the total mass and the weighted sum of positions
-    total_mass = uniform_mass * len(vertices)
-    weighted_sum = np.sum(vertices, axis=0) * uniform_mass
-    
-    # Calculate the center of mass
+    total_mass = len(vertices)
+    weighted_sum = np.sum(vertices, axis=0)
     center_of_mass = weighted_sum / total_mass
-    
     return center_of_mass
-
-
-
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-
         self.setWindowTitle("Tesselater")
         self.setGeometry(100, 100, 800, 600)
-
+        self.mesh_file_path = None
         self.initUI()
 
     def initUI(self):
-        # Create a central widget and layout
         central_widget = QWidget()
         layout = QVBoxLayout(central_widget)
         self.setCentralWidget(central_widget)
 
-        # Add PyVista render window
         self.plotter = QtInteractor(central_widget)
         layout.addWidget(self.plotter.interactor)
 
-        # Create menu bar
         menu_bar = self.menuBar()
-
-        # File menu
         file_menu = menu_bar.addMenu("Plotting:")
+        
+        # Dictionary to hold actions and corresponding methods
+        actions = {
+            "Warping analysis": self.on_warping_analysis,
+            "Small Details": self.on_small_details,
+            "Toppling": self.on_toppling,
+            "Roughness": self.on_roughness,
+            "Shrinkage": self.on_shrinkage,
+            "Overhangs": self.on_overhangs,
+            "Center of Mass": self.on_center_of_mass,
+            "Vectors": self.on_vectors,
+            "Exit": self.on_exit
+        }
 
-        option1_action = QAction("Warping analysis", self)
-        option1_action.triggered.connect(self.on_option1)
-        file_menu.addAction(option1_action)
+        for action_name, method in actions.items():
+            action = QAction(action_name, self)
+            action.triggered.connect(method)
+            file_menu.addAction(action)
 
-        option2_action = QAction("Small Details", self)
-        option2_action.triggered.connect(self.on_option2)
-
-        file_menu.addAction(option2_action)
-
-        option3_action = QAction("Toppling", self)
-        option3_action.triggered.connect(self.on_option3)
-        file_menu.addAction(option3_action)
-
-        option4_action = QAction("Roughness", self)
-        option4_action.triggered.connect(self.on_option4)
-        file_menu.addAction(option4_action)
-
-        option5_action = QAction("Shrinkage", self)
-        option5_action.triggered.connect(self.on_option5)
-        file_menu.addAction(option5_action)
-
-        option6_action = QAction("Overhangs", self)
-        option6_action.triggered.connect(self.on_option6)
-        file_menu.addAction(option6_action)
-
-        option7_action = QAction("Center of Mass", self)
-        option7_action.triggered.connect(self.on_option7)
-        file_menu.addAction(option7_action)
-
-        option8_action = QAction("Vectors", self)
-        option8_action.triggered.connect(self.on_option8)
-        file_menu.addAction(option8_action)
-
-        exit_action = QAction("Exit", self)
-        exit_action.triggered.connect(self.on_exit)
-        file_menu.addAction(exit_action)
-
-        # View menu
         view_menu = menu_bar.addMenu("View")
         rotate_action = QAction("Rotate Mesh", self)
         rotate_action.triggered.connect(self.on_rotate_mesh)
@@ -187,128 +106,138 @@ class MainWindow(QMainWindow):
         grid_action.triggered.connect(self.on_toggle_grid)
         view_menu.addAction(grid_action)
 
-        # Help menu
         help_menu = menu_bar.addMenu("Help")
-
         about_action = QAction("About", self)
         about_action.triggered.connect(self.on_about)
         help_menu.addAction(about_action)
 
 
-        # Initialize PyVista plotter with a default plane mesh
+        # Call the method to open file dialog and load mesh
+        self.open_file_dialog()
+        
+        # Load mesh from the file path if selected
+        if self.mesh_file_path:
+            mesh_loader.load_mesh(self.mesh_file_path)  # Use mesh_loader to load the mesh
+
         self.plotter.add_mesh(pv.Plane(), color='white')
 
+    def open_file_dialog(self):
+        file_dialog = QFileDialog()
+        file_dialog.setFileMode(QFileDialog.ExistingFile)
+        file_dialog.setNameFilter("STL Files (*.stl)")
+        if file_dialog.exec_() == QFileDialog.Accepted:
+            self.mesh_file_path = file_dialog.selectedFiles()[0]
+        else:
+            sys.exit()
 
- 
-    def on_option1(self):
-        QMessageBox.information(self, "Info", "You selected Option 1")
-        # Example action: update PyVista plot
+    def on_warping_analysis(self):
+        from variables import Layer_Height 
+        QMessageBox.information(self, "Info", "The first layer and its difference will be shown in a different page,in the main will be show the original Base")
         self.plotter.clear()
-        shifted_plane=shift()
-        import warping
+        shifted_plane = shift(mesh_loader.get_mesh())
         self.plotter.add_mesh(shifted_plane, color='grey')
-        self.plotter.add_mesh(mesh, color='red')
 
-    def on_option2(self):
-        QMessageBox.information(self, "Info", "For in depth analysis,the opacity is changed")
-        # Example action: update PyVista plot
+    # Read the content of warping.py
+        with open('warping.py', 'r') as file:
+                warping_code = file.read()
+    
+        exec_context = {
+            'Layer_Height': Layer_Height,
+        # Include other necessary variables and imports here
+    }
+
+    # Execute the content of warping.py with the context
+        exec(warping_code, exec_context)
+
+    def on_small_details(self):
+        QMessageBox.information(self, "Info", "For in-depth analysis, the opacity is changed")
         self.plotter.clear()
-        shifted_plane=shift()
-        Microstepping=1/16
-# Filter cells based on area
-# Compute cell sizes
-        sizes = mesh.compute_cell_sizes()
-
-# Access cell areas
+        shifted_plane = shift(mesh_loader.get_mesh())
+        sizes = mesh_loader.get_mesh().compute_cell_sizes()
         areas = sizes['Area']
-#Here we make a quick calculus to see the little areas that are more prone to have errors,depending on your micro-stepping and nozzle size
-        Minimal_area =Nozzle_Size*Microstepping
+        Minimal_area = 0.4 * Microstepping
         filtered_cells = np.where(areas < Minimal_area)
-
-
-# Extract the cells with thin area
-        thin_cells = mesh.extract_cells(filtered_cells)
-        self.plotter.add_mesh(mesh,color='blue',opacity=0.5)
+        thin_cells = mesh_loader.get_mesh().extract_cells(filtered_cells)
+        self.plotter.add_mesh(mesh_loader.get_mesh(), color='blue', opacity=0.5)
         self.plotter.add_mesh(thin_cells, color='red')
         self.plotter.add_mesh(shifted_plane, color='grey')
 
-    def on_option3(self):
-        from Toppling import text
-
+    def on_toppling(self):
+        from Toppling import text,result
         QMessageBox.information(self, "Will it Topple?", text)
-        # Example action: update PyVista plot
         self.plotter.clear()
-        shifted_plane=shift()
-        self.plotter.add_mesh(mesh, color='blue')
+        shifted_plane = shift(mesh_loader.get_mesh())
+        self.plotter.add_mesh(mesh_loader.get_mesh(), color='blue',opacity=0.5)
+        with open('Toppling.py', 'r') as file:
+                warping_code = file.read()
+
+        exec_context = {
+            'result': result,
+        # Include other necessary variables and imports here
+    }
+    # Execute the content of warping.py with the context
+        exec(warping_code,exec_context)
         self.plotter.add_mesh(shifted_plane, color='grey')
 
-
-    def on_option4(self):
-        # Example action: update PyVista plot
+    def on_roughness(self):
         self.plotter.clear()
-        shifted_plane=shift()
+        shifted_plane = shift(mesh_loader.get_mesh())
         from Roughness import calculate_and_visualize_surface_roughness
-        calculate_and_visualize_surface_roughness(mesh, build_direction=[0, 0, 1], smooth_color="lightblue", rough_color="purple")
-        self.plotter.add_mesh(mesh)
+        calculate_and_visualize_surface_roughness(mesh_loader.get_mesh(), build_direction=[0, 0, 1], smooth_color="lightblue", rough_color="purple")
+        self.plotter.add_mesh(mesh_loader.get_mesh())
         self.plotter.add_mesh(shifted_plane, color='grey')
 
-         # Apply shifting
-
-        
-        
-    
-    def on_option5(self):
-        QMessageBox.information(self, "Info", "Expected maximum shrinkage of a piece,The original is the green mesh")
-        # Example action: update PyVista plot
+    def on_shrinkage(self):
+        QMessageBox.information(self, "Info", "Expected maximum shrinkage of a piece, The original is the green mesh")
         self.plotter.clear()
-        shifted_plane=shift()
+        shifted_plane = shift(mesh_loader.get_mesh())
         from Shrinkage import shrinked_mesh
-        self.plotter.add_mesh(mesh, color='green',opacity=0.3)
+        self.plotter.add_mesh(mesh_loader.get_mesh(), color='green', opacity=0.3)
         self.plotter.add_mesh(shrinked_mesh, color='red')
         self.plotter.add_mesh(shifted_plane, color='grey')
 
-    def on_option6(self):
-        # Example action: update PyVista plot
+    def on_overhangs(self):
         self.plotter.clear()
         from vx import overhang_cells
-        shifted_plane=shift()
+        shifted_plane = shift(mesh_loader.get_mesh())
         self.plotter.add_mesh(overhang_cells, color='red')
-        self.plotter.add_mesh(mesh, color='blue')
-        overhang_cells.translate(mesh.center)
+        self.plotter.add_mesh(mesh_loader.get_mesh(), color='blue',opacity=0.4)
+        overhang_cells.translate(mesh_loader.get_mesh().center)
         self.plotter.add_mesh(shifted_plane, color='grey')
 
-    def on_option7(self):
-        # Example action: update PyVista plot
+    def on_center_of_mass(self):
         self.plotter.clear()
-        shifted_plane=shift()
-        com = calculate_center_of_mass(mesh)
+        shifted_plane = shift(mesh_loader.get_mesh())
+        com = calculate_center_of_mass(mesh_loader.get_mesh())
         com_point = pv.PolyData(com.reshape(1, -1))
-        self.plotter.add_mesh(com_point, color="red", point_size=10)  # Adjust point_size as needed
-        
-        self.plotter.add_mesh(mesh, color='blue',opacity=0.5)
+        self.plotter.add_mesh(com_point, color="red", point_size=10)
+        self.plotter.add_mesh(mesh_loader.get_mesh(), color='blue', opacity=0.5)
         self.plotter.add_mesh(shifted_plane, color='grey')
 
-    def on_option8(self):
-        QMessageBox.information(self, "Info", "The vectors will be shown in another screen,to return simply close the new window")
-        # Example action: update PyVista plot
+    def on_vectors(self):
+        QMessageBox.information(self, "Info", "The vectors will be shown in another screen, to return simply close the new window")
         self.plotter.clear()
-        shifted_plane=shift()
-        self.plotter.add_mesh(mesh, color='blue')
+        shifted_plane = shift(mesh_loader.get_mesh())
+        self.plotter.add_mesh(mesh_loader.get_mesh(), color='blue')
         self.plotter.add_mesh(shifted_plane, color='grey')
-        mesh.plot_normals(mag=1, show_edges=True)
-
-    def on_option9(self):
-        QMessageBox.information(self, "Info", "The vectors will be shown in another screen,to return simply close the new window")
-        # Example action: update PyVista plot
-        self.plotter.clear()
-        shifted_plane=shift()
-        self.plotter.add_mesh(mesh, color='blue')
-        self.plotter.add_mesh(shifted_plane, color='grey') 
+        mesh_loader.get_mesh().plot_normals(mag=1, show_edges=True)
 
     def on_rotate_mesh(self):
-        axis = input("Enter the rotation axis (x, y, or z): ")
-        angle_degrees = float(input("Enter the rotation angle in degrees: "))
-        rotate_mesh(mesh, axis, angle_degrees)
+        dialog = QInputDialog(self)
+        dialog.setWindowTitle("Rotate Mesh")
+        dialog.setLabelText("Enter the axis and angle for rotation (e.g. x,30):")
+        dialog.setOkButtonText("Rotate")
+        dialog.setCancelButtonText("Cancel")
+        dialog.setInputMode(QInputDialog.TextInput)
+        if dialog.exec_() == QInputDialog.Accepted:
+            text = dialog.textValue()
+            try:
+                axis, angle_degrees = text.split(",")
+                angle_degrees = float(angle_degrees)
+                rotate_mesh(mesh_loader.get_mesh(), axis, angle_degrees)
+            except ValueError as e:
+                QMessageBox.critical(self, "Error", "Invalid input format. Please enter the axis and angle in the correct format (e.g. x,30).")
+
     def on_toggle_bounds(self, state):
         if state:
             self.plotter.show_bounds()
@@ -318,16 +247,14 @@ class MainWindow(QMainWindow):
     def on_toggle_grid(self, state):
         if state:
             self.plotter.show_grid()
-        else:
-            self.plotter.clear()  # This removes all actors including grid, we will add plane again
-            
-            self.plotter.add_mesh(pv.Plane(), color='white')  # Re-add the default plane
+        
 
     def on_exit(self):
         self.close()
 
     def on_about(self):
-        QMessageBox.information(self, "Documentation", "Check the page on github")
+        QMessageBox.information(self, "Documentation", "Check the page on GitHub")
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
