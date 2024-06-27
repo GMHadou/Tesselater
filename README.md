@@ -10,8 +10,8 @@ Scale manufacture and particular case study of errors in mesh.In the neear futur
 
 ## Parameters Explanation:
 
-## 1.0-Curses.py:
-The file where the main part is hosted and where it should initially run.
+## 1.0-Curses.py and How To Run:
+The file where the main part is hosted and where it should initially run.Run as a normal python file.
 
 ## 1.1-Warping:
 Warping is defined by the deformation of the plastic layer over time after cooling.The warp of a print has an intrinsic relation to the material and format of a print,being proportional to a shrinkness constant of the specific material.In the analysis,the consideration is specifically designed to calculate and plot the warping effect on the first layer of the print,being directly proportional to the geometry of the first layer of the print,which causes the majority of fatal errors concerning warp since the model is dislocated when temperature is not adequate.Besides geometrical analysis and material comparison,further problems may be caused by
