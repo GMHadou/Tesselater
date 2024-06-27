@@ -71,6 +71,9 @@ Optional Displays for more advanced modelling fixes.
 # 4-Settings.py and Configs:
 For simpliciry purposes when writing,the settings you're using on your printer as well as constants mid prints such as speed and Temperature are stocked in settings.py.As of today,they're set as
 configurable floats(They can also be changed for material,like the constant of shrinkage).Future works shall introduce concepts of Real time analysis using softwares like Klipper and real time info.
+For future reference in Percentage of Shrinkage in different materials for analysis(PLA,ABS,etc),please consult this:
+![image](https://github.com/GMHadou/Tesselater/assets/106123785/c4893958-179b-4e9a-ba74-80970d967029)
+
 # 5-Conclusion and Feedbacks:
 The code is intended to help newcomers and intermidiate owners of 3D Printers.As the first version of this work in some aspects,it may be prone to a lot of bugs
 and problems in calculus that will be adjusted.If you think something is wrong when testing and experimenting with this,be sure to communicate it in issues.
