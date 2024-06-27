@@ -41,10 +41,9 @@ They're added here by themselves.
 Additional technical info on the program is located on explanations.txt
 
 # 2-Installation:
+First download the Rar or clone the library,after that install the required libraries in requirements.txt and you should be ready to go.You could also install pyvista,pyvistaAqt and numpy if you're looking for a more compact approach.
 
-Just install the required libraries and you should be ready to go.You could also install pyvista,pyvistaAqt and numpy if you're looking for a more compact approach.
-
-         ```
+         git clone https://github.com/GMHadou/Tesselater.git
          pip install -r requirements.txt
 # 3-Interpretation and Usage
 
