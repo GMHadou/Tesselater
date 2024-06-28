@@ -41,10 +41,13 @@ They're added here by themselves.
 Additional technical info on the program is located on explanations.txt
 
 # 2-Installation:
-First download the Rar or clone the library,after that install the required libraries in requirements.txt and you should be ready to go.You could also install pyvista,pyvistaAqt and numpy if you're looking for a more compact approach.
+First download the Rar or clone the library,after that install the required libraries in requirements.txt.You can also use the virtual enviroment to activate the required dependeencies
 
+          .venv/scripts/activate #Activating the enviroment
+
+          
          git clone https://github.com/GMHadou/Tesselater.git
-         pip install -r requirements.txt
+         pip install -r requirements.txt #Installing locally
 # 3-Interpretation and Usage
 
 ## 3.1-Warping Analysis:
