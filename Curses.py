@@ -62,6 +62,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Tesselater")
         self.setGeometry(100, 100, 800, 600)
         self.mesh_file_path = None
+        self.rotation_params = []  # Store rotation parameters here
         self.initUI()
 
     def initUI(self):
@@ -136,6 +137,7 @@ class MainWindow(QMainWindow):
         self.plotter.clear()
         shifted_plane = shift(mesh_loader.get_mesh())
         self.plotter.add_mesh(shifted_plane, color='grey')
+        self.plotter.update()
 
     # Read the content of warping.py
         with open('warping.py', 'r') as file:
@@ -161,10 +163,10 @@ class MainWindow(QMainWindow):
         self.plotter.add_mesh(mesh_loader.get_mesh(), color='blue', opacity=0.5)
         self.plotter.add_mesh(thin_cells, color='red')
         self.plotter.add_mesh(shifted_plane, color='grey')
+        self.plotter.update()
 
     def on_toppling(self):
-        from Toppling import text,result
-        QMessageBox.information(self, "Will it Topple?", text)
+        result="string"
         self.plotter.clear()
         shifted_plane = shift(mesh_loader.get_mesh())
         self.plotter.add_mesh(mesh_loader.get_mesh(), color='blue',opacity=0.5)
@@ -178,6 +180,7 @@ class MainWindow(QMainWindow):
     # Execute the content of warping.py with the context
         exec(warping_code,exec_context)
         self.plotter.add_mesh(shifted_plane, color='grey')
+        self.plotter.update()
 
     def on_roughness(self):
         self.plotter.clear()
@@ -186,15 +189,19 @@ class MainWindow(QMainWindow):
         calculate_and_visualize_surface_roughness(mesh_loader.get_mesh(), build_direction=[0, 0, 1], smooth_color="lightblue", rough_color="purple")
         self.plotter.add_mesh(mesh_loader.get_mesh())
         self.plotter.add_mesh(shifted_plane, color='grey')
+        self.plotter.update()
 
     def on_shrinkage(self):
         QMessageBox.information(self, "Info", "Expected maximum shrinkage of a piece, The original is the green mesh")
         self.plotter.clear()
         shifted_plane = shift(mesh_loader.get_mesh())
         from Shrinkage import shrinked_mesh
+        for axis, angle_degrees in self.rotation_params:
+            rotate_mesh(shrinked_mesh, axis, angle_degrees)
         self.plotter.add_mesh(mesh_loader.get_mesh(), color='green', opacity=0.3)
         self.plotter.add_mesh(shrinked_mesh, color='red')
         self.plotter.add_mesh(shifted_plane, color='grey')
+        self.plotter.update()
 
     def on_overhangs(self):
         self.plotter.clear()
@@ -204,6 +211,7 @@ class MainWindow(QMainWindow):
         self.plotter.add_mesh(mesh_loader.get_mesh(), color='blue',opacity=0.4)
         overhang_cells.translate(mesh_loader.get_mesh().center)
         self.plotter.add_mesh(shifted_plane, color='grey')
+        self.plotter.update()
 
     def on_center_of_mass(self):
         self.plotter.clear()
@@ -213,6 +221,7 @@ class MainWindow(QMainWindow):
         self.plotter.add_mesh(com_point, color="red", point_size=10)
         self.plotter.add_mesh(mesh_loader.get_mesh(), color='blue', opacity=0.5)
         self.plotter.add_mesh(shifted_plane, color='grey')
+        self.plotter.update()
 
     def on_vectors(self):
         QMessageBox.information(self, "Info", "The vectors will be shown in another screen, to return simply close the new window")
@@ -221,6 +230,7 @@ class MainWindow(QMainWindow):
         self.plotter.add_mesh(mesh_loader.get_mesh(), color='blue')
         self.plotter.add_mesh(shifted_plane, color='grey')
         mesh_loader.get_mesh().plot_normals(mag=1, show_edges=True)
+        self.plotter.update()
 
     def on_rotate_mesh(self):
         dialog = QInputDialog(self)
@@ -234,6 +244,8 @@ class MainWindow(QMainWindow):
             try:
                 axis, angle_degrees = text.split(",")
                 angle_degrees = float(angle_degrees)
+                self.rotation_params.append((axis, angle_degrees))  # Store the rotation parameters
+                self.plotter.update()  # Update the plotter
                 rotate_mesh(mesh_loader.get_mesh(), axis, angle_degrees)
             except ValueError as e:
                 QMessageBox.critical(self, "Error", "Invalid input format. Please enter the axis and angle in the correct format (e.g. x,30).")
