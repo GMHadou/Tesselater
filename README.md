@@ -47,7 +47,9 @@ First download the Rar or clone the library,after that install the required libr
 
           
          git clone https://github.com/GMHadou/Tesselater.git
+         cd ~/Tesselater
          pip install -r requirements.txt #Installing locally
+         python3 Curses.py
 # 3-Interpretation and Usage
 
 ## 3.1-Warping Analysis:
