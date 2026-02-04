@@ -22,6 +22,6 @@ QtPy==2.4.1
 requests==2.32.3
 scooby==0.10.0
 six==1.16.0
-urllib3==2.2.2
+urllib3==2.6.3
 vtk==9.3.0
 
