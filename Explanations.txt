@@ -1,41 +1,114 @@
-Enhancing Support and Thresholds:
+Tesselater 2.0 — technical notes
+================================
 
-When analyzing overhanging facets and roughness, we rely on the default parameters of FDM printers (set at 45 degrees). 
-Additionally, our small part analysis is conducted with an oriented nozzle width of 4 mm (default setting). However, for more tailored results aligned with your printer's specifications,
-feel free to adjust these parameters accordingly.
+Package layout
+--------------
+tesselater/config.py       Printer + material + support weights
+tesselater/mesh_io.py      Load / seat / rotate meshes (no import-time I/O)
+tesselater/geometry.py     COM, first-layer footprint, tip-circle containment
+tesselater/results.py      Shared AnalysisResult / MeshActor
+tesselater/analysis/       Heuristics (warping, toppling, shrinkage, …)
+tesselater/support/        Tip map → candidates → score → recommendation
+tesselater/pipeline.py     Headless PrintabilityReport
+tesselater/ui/             main_window (shell), actions, viewers
+main.py                    Entry point  (Curses.py still launches main)
+tests/                     pytest
 
-Curses.py:
-This file serves as the hub for the main menu and essential definitions.
+Support optimization (stage B)
+------------------------------
+1. Overhang faces (same angle rule as analysis/overhangs).
+2. Cluster face centers on an XY grid (cluster_pitch_mm) → tip points.
+3. Candidates:
+   - dense_pillars: one column per tip (flat tips)
+   - sparse_pillars: merge tips within sparse_merge_radius_mm
+   - tree: larger merge + thicker trunks, point tips (branch volume deferred)
+4. Cost J = w_t·(T/60) + w_v·(V/1000) + w_c·A_contact + w_s·scar_score
+   scar_score ≈ 0.6·A_scar + 0.4·peel ; peel uses material tip_bond and tip style.
+   T ≈ V/(line_width·layer_height·speed) + travel/travel_speed.
+5. Pick feasible candidate with minimal J. Export solids via support/export.py.
+6. Orientation search (optimize/orientation.py): grid of rx/ry/(rz) poses,
+   J_pose = support_cost + unstable_penalty·[bad topple] + 0.05·tips.
+7. CLI: report | optimize | export-supports | materials | gui
+   Config/materials: config.example.toml, materials/*.toml
 
-Meshloader.py:
-Instantiation of the pyvista mesh to be run in pyvistaAQT and to allow user to choose the File.
+Run:  python main.py
+Config: edit DEFAULT_CONFIG in tesselater/config.py (or construct AppConfig).
 
-Non-Watertight:
-In real-world printing, meticulous attention to surface openings and infill specifications is crucial. 
-Failure to ensure cleanness and precision may necessitate corrective measures.We recommended that all the meshs analysed aree watertight,otherwise unknown bugs could occur.
 
-Toppling:
-Toppling considers both warping and therefore shrinkage calculations.While it doesn't analyse the Support itself's role,all the calculations are based on the normal usage of straight support when overhangs are present.
+Geometric evaluation (mathematical resolution)
+----------------------------------------------
+Older versions used the mean of mesh *vertices* as center of mass, and tested
+whether a tip-stability circle sat inside the *axis-aligned bounding box* of
+the first layer. Both are wrong for general STLs.
 
-Vx.py:
-This module is designed to pinpoint overhangs in the mesh and visualize them.
+(1) Volumetric center of mass (closed triangular polyhedron, uniform density)
 
-Small_Parts:
-Estimates the precision loss in small parts due to printer limitations.
+    Decompose the solid into tetrahedra from the origin to each oriented
+    surface triangle (a, b, c). With the scalar triple product
 
-Warping.py:
-Warping, often confined to corners, is primarily influenced by print bed cleanliness and temperature regulation. 
-While our method involves analyzing edge size, number of spiky corners, and first layer considerations, 
-it's primarily based on shrinkage percentage and its impact on the first layer. For those interested, 
-we recommend further exploration of warping prediction using visual heat images through the provided research link:https://www.researchgate.net/publication/355119774_A_STUDY_ON_THERMAL_BEHAVIOUR_OF_A_3D_PRINTER_AND_EXTRUDED_MATERIAL_WITH_THERMAL_IMAGING_METHOD
+        τ_i = a · (b × c)
+        V   = (1/6) Σ τ_i
 
-Warping_Formula.py:
-A concise formula developed to calculate variables based on user-defined configurations.Separated to improve understanding of the calculus made.
+    the center of mass is
 
-Temperature:
-While direct temperature optimization isn't provided in the code due to its divergence in a general analysis, optimizing geometry indirectly enhances heat dispersion. For those inclined to calibrate or explore temperature optimization methods, we recommend utilizing tools like GCodeutils or Octoprint smart calibration. Additionally,filament and spool checks are advised for quality assurance.
+        C = Σ τ_i (a + b + c) / (4 Σ τ_i)
+          = Σ τ_i (a + b + c) / (24 V)
 
-By optimizing geometry, our approach mitigates various printing issues, including stringing, uneven surfaces (blobs), partial warping, toppling (often triggered by warping), and many others.
+    If |V| is negligible (open / non-manifold mesh), fall back to the
+    area-weighted shell centroid:
 
-Roughness:
-Cells requiring support (overhanging) and those in direct contact with it may exhibit roughness due to minimal fusion for stability.Roughness Dictates the general uneveness of the surface,so that prints can be expected to fit/accomplish their functions with adequate rotation and optimization.
+        C = Σ A_i c_i / Σ A_i ,   c_i = (a+b+c)/3 ,   A_i = (1/2)||(b-a)×(c-a)||
+
+(2) First-layer contact footprint
+
+    Take all vertices in the slab z ∈ [z_min, z_min + h_layer], project to XY,
+    and form the convex hull H = conv(points). Contact area is the shoelace
+    area of H — not Δx·Δy of the AABB.
+
+(3) Tip-stability circle containment
+
+    Under a quasi-static lean of angle θ about a horizontal axis, the vertical
+    through the COM meets the bed on a circle of radius
+
+        r = H_mesh · tan(θ)
+
+    centered at the COM's XY projection. If that entire circle lies inside H
+    (convex point-in-polygon on sampled ring points), every lean ≤ θ keeps the
+    support force inside the contact set. This is a *conservative* criterion
+    (convex hull ⊇ true contact polygon).
+
+(4) Dimensionless stability margin
+
+        m = Area(H) / (H_mesh · d²)
+
+    with d = nozzle diameter. Compared to printer.stability_margin_threshold
+    (default 50). Replaces the previous dimensional magic number 9.67.
+
+
+Other analysis notes
+--------------------
+Overhangs: face normal angle from +Z exceeds (180° − overhang_angle_deg).
+For the default 45° rule that means angle(normal, +Z) > 135° (downward
+faces past a 45° lean from vertical). Vertical walls (≈90°) are not flagged.
+
+Roughness: faces in shallow stair-step (2°–45°) or steep (135°–178°) bands;
+colors stored in cell_data['SurfaceRoughness'] and rendered with rgb=True.
+
+Shrinkage: isotropic scale 1 − shrinkage_fraction from the material table.
+The old Outer_volume algebra cancelled back to the same constant; that
+indirection is removed. heat_warped_volume = V·CTE·ΔT remains a diagnostic.
+
+Warping: empirical tendency from speed / line-width vs quality speed, scaled
+by shrinkage. Visualization pulls first-layer points toward a point above the
+base centroid (qualitative, not a thermal FEM).
+
+Small details: cell area < nozzle_size² · microstepping (mm²).
+
+Watertight meshes: strongly recommended. Non-manifold STLs degrade COM and
+volume terms; the UI warns when open edges / non-positive volume are detected.
+
+Supports: toppling assumes conventional supports for overhangs; it does not
+simulate custom support strategies.
+
+References / inspiration: Will-It-Print and the warping / shrinkage literature
+linked from README.md.

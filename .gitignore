@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.venv/
+.venv-linux/
+venv/
+tesselater_out/
+*.stl.bak
+config.toml
+.DS_Store

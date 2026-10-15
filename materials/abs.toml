@@ -1,0 +1,9 @@
+name = "ABS"
+cte = 9.0e-5
+shrinkage_fraction = 0.008
+recommended_bed_temp_min = 90.0
+recommended_bed_temp_max = 110.0
+recommended_hotend_temp_min = 230.0
+recommended_hotend_temp_max = 250.0
+fluid_transition_temp = 105.0
+tip_bond = 1.35

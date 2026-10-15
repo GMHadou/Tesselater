@@ -1,0 +1,10 @@
+name = "PLA"
+cte = 6.8e-5
+shrinkage_fraction = 0.005
+recommended_bed_temp_min = 45.0
+recommended_bed_temp_max = 60.0
+recommended_hotend_temp_min = 195.0
+recommended_hotend_temp_max = 210.0
+fluid_transition_temp = 135.0
+# Relative bond strength at support tips (higher ⇒ harder to detach)
+tip_bond = 1.0

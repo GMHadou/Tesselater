@@ -1,0 +1,38 @@
+# Copy to config.toml and edit. Load with: tesselater --config config.toml ...
+
+[material]
+# Or: material_file = "materials/pla.toml"
+name = "PLA"
+cte = 6.8e-5
+shrinkage_fraction = 0.005
+recommended_bed_temp_min = 45.0
+recommended_bed_temp_max = 60.0
+recommended_hotend_temp_min = 195.0
+recommended_hotend_temp_max = 210.0
+fluid_transition_temp = 135.0
+tip_bond = 1.0
+
+[printer]
+bed_width = 220.0
+bed_length = 220.0
+nozzle_size = 0.4
+layer_height = 0.2
+speed = 80.0
+hotend_temp = 210.0
+bed_temp = 60.0
+overhang_angle_deg = 45.0
+
+[support]
+cluster_pitch_mm = 3.0
+sparse_merge_radius_mm = 6.0
+tree_merge_radius_mm = 10.0
+weight_time = 1.0
+weight_volume = 1.0
+weight_contact = 0.15
+weight_scar = 0.25
+default_tip_style = "point"
+
+[orientation]
+angle_step_deg = 90.0
+include_z_spins = false
+unstable_penalty = 50.0

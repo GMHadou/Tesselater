@@ -1,6 +1,0 @@
-Warping Tendency= (Speed)*Layer_Height*/(LineWidth)-(Speed_Quality)*Layer_Height*/(Ideal LineWidth)
-
-Speed_Quality = Max_Speed * 0.7
-Minimum = Layer_Height + Nozzle_Size
-Maximum = Layer_Height + Nozzle_Flat
-Ideal = (Minimum + Maximum) / 2

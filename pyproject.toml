@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tesselater"
+version = "2.2.0"
+description = "Geometric FDM printability checks and support scoring"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "GMHadou" }]
+dependencies = [
+  "numpy>=1.23",
+  "matplotlib>=3.7",
+  "pyvista>=0.42",
+  "pyvistaqt>=0.11",
+  "PyQt5>=5.15",
+  "tomli>=2.0; python_version < '3.11'",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+tesselater = "tesselater.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["tesselater*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
